@@ -5,7 +5,7 @@ const file = {
 }
 
 const country = {
-    default: true,
+    demand: true,
     alias: 'c',
     desc: ' Permite determinar el país a analizar a través de su código ISO 3166 ALPHA-3'
 }
@@ -28,12 +28,7 @@ const argv = require("yargs")
         country,
         year
     })
-    .command('guardar', 'Muestra la lista de tareas', {
-        file,
-        country,
-        year,
-        out
-    })
+    .command('guardar', 'Muestra la lista de tareas')
     .help()
     .argv;
 
