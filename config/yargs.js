@@ -28,7 +28,12 @@ const argv = require("yargs")
         country,
         year
     })
-    .command('guardar', 'Muestra la lista de tareas')
+    .command('guardar', 'Muestra la lista de tareas', {
+        file,
+        country,
+        year,
+        out
+    })
     .help()
     .argv;
 

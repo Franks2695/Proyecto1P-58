@@ -4,6 +4,15 @@ var colors = require('colors')
 
 let js = [];
 
+const consult = (path, code, year) => {
+    let consult = [];
+    let country = getData(path);
+    num = 0;
+    if (country != "Fatal Error") {
+        let countr =
+    }
+}
+
 const convertir_guardar = () => {
     csv().fromFile('./data/API.csv')
         .then((json) => {
@@ -17,35 +26,46 @@ const convertir_guardar = () => {
 
 const leerDatos = () => {
     try {
-        js = require('../data/datos.json');
+        js = require('../data/resultados.json');
     } catch (error) {
         js = [];
     }
 }
 
-const ej = () => {
-    te = require('../data/resultados.json')
-        //CONEXIÓN AL CSV
-
-    'use strict'
-
-    fs.readFile('API.csv', 'utf8', function(err, data) {
-        var dataArray = data.split(/\r?\n/);
-        console.log(dataArray);
-    });
-
-    for (var i = 0; i < te.length; i++) {
-        nom = te[i].CountryCode;
+const getData = (file) => {
+    try {
+        infs = csv().fromFile(file);
+        let data = [];
+        let csv = JSON.parse(fs.readFileSync('./data/resultados.json', 'utf8'));
+        for (let inf of infs) {
+            inf = Object.values(inf);
+            for (let codeCountry of csv) {
+                if (inf[1] == codeCountry.CountryCode) {
+                    data.push(inf)
+                }
+            }
+        }
+        return data;
+    } catch (error) {
+        error = "Fatal Error".bgRed
     }
-
-    /* for (var j = 0; j < te.length; j++)
-        if (nom === API[1]) {
-            console.log('Hola');
-        } */
 }
 
-const publicar = () => {
-    leerDatos();
+const getCountry = (year, code) => {
+    for (var i = 0; i < year.length; i++) {
+        let value = Object.values(year[i]);
+        if (value[1] == code) {
+            return true;
+        }
+    }
+}
+
+const publicar = (path, country, year) => {
+    consult(path, country, year).then((inf) => {
+        if (inf.length > 0) {
+            console.log('RESULTADOS');
+        }
+    });
 
     let est = {
         country: true,
