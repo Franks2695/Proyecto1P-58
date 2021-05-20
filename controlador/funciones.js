@@ -21,12 +21,27 @@ const leerDatos = () => {
     } catch (error) {
         js = [];
     }
-
 }
 
 const ej = () => {
-    convertir_guardar();
+    te = require('../data/resultados.json')
+        //CONEXIÓN AL CSV
 
+    'use strict'
+
+    fs.readFile('API.csv', 'utf8', function(err, data) {
+        var dataArray = data.split(/\r?\n/);
+        console.log(dataArray);
+    });
+
+    for (var i = 0; i < te.length; i++) {
+        nom = te[i].CountryCode;
+    }
+
+    /* for (var j = 0; j < te.length; j++)
+        if (nom === API[1]) {
+            console.log('Hola');
+        } */
 }
 
 const publicar = () => {
@@ -36,8 +51,8 @@ const publicar = () => {
         country: true,
         year: true
     }
-
-    let i = js.filter(n => n.field5 === "1960")
+    let n = "Country Name"
+    let i = js.filter(n => n.Data_Source === "ABW")
     console.log(i);
 
     /*  if (index1, index2 >= 0) {
@@ -46,8 +61,26 @@ const publicar = () => {
 
 }
 
+const pagina = () => {
+    const http = require('http');
+
+    const hostname = '127.0.0.1';
+    const port = 3000;
+
+    const server = http.createServer((req, res) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Hello Worlddddd');
+    });
+
+    server.listen(port, hostname, () => {
+        console.log(`Server running at http://${hostname}:${port}/`);
+    });
+}
+
 module.exports = {
     convertir_guardar,
     publicar,
-    ej
+    ej,
+    pagina
 }
