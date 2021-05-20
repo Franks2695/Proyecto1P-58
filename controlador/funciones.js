@@ -9,7 +9,14 @@ const consult = (path, code, year) => {
     let country = getData(path);
     num = 0;
     if (country != "Fatal Error") {
-        let countr =
+        let countr = getCountry(country, code);
+        if (countr == true) {
+            if (year <= 2019 && year >= 1964) {
+                getSuscription(country, code, year).then((suscriptionCountry) => {
+
+                })
+            }
+        }
     }
 }
 
@@ -56,6 +63,16 @@ const getCountry = (year, code) => {
         let value = Object.values(year[i]);
         if (value[1] == code) {
             return true;
+        }
+    }
+}
+
+const getSuscription = (country, code, year) => {
+    for (var i = 0; i < year.length; i++) {
+        let value = Object.values(country[i]);
+        if (value[1] == code) {
+            suscription = value[year - 1956];
+            return suscription;
         }
     }
 }
