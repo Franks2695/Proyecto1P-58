@@ -20,7 +20,7 @@ const consult = async(path, code, year) => {
                             } else {
                                 value = `El valor de las suscripciones de ${code} es MAYOR a la media mundial`
                             }
-                            let m = {
+                            let medi = {
                                 Global_Media: Number(half),
                                 Year: year,
                                 Code: code,
@@ -28,32 +28,32 @@ const consult = async(path, code, year) => {
                                 Value: value,
                                 Reference: 1
                             }
-                            consulta.push(m);
+                            consulta.push(medi);
                             getTopMax(country, year, suscriptionCountry).then((Max) => {
                                 if (Max.length > 0) {
                                     for (let i of Max) {
-                                        let M = {
+                                        let maxi = {
                                             Code: i.Code,
                                             Country: i.Country,
                                             Suscriptions: i.Suscriptions,
                                             Description: `5 Países por ENCIMA del valor de suscripción de ${code}`,
                                             Reference: 2
                                         }
-                                        consulta.push(M);
+                                        consulta.push(maxi);
                                     }
                                 }
                             })
                             getTopMin(country, year, suscriptionCountry).then((Mini) => {
                                 if (Mini.length > 0) {
                                     for (let i of Mini) {
-                                        let s = {
+                                        let mini = {
                                             Code: i.Code,
                                             Country: i.Country,
                                             Suscriptions: i.Suscriptions,
                                             Description: `5 Países por DEBAJO del valor de suscripción de ${code}`,
                                             Reference: 3
                                         }
-                                        consulta.push(s);
+                                        consulta.push(mini);
                                     }
                                 }
                             })
@@ -451,7 +451,7 @@ const publicar = async(path, country, year) => {
 
 }
 
-const guardar = async(path, code, year, out) => {
+const guardar = (path, code, year, out) => {
     leerDatos(out);
     consult(path, code, year).then((inf) => {
         for (let i of inf) {
@@ -469,24 +469,24 @@ const guardar = async(path, code, year, out) => {
         }
         for (let i of inf) {
             if (i.Reference == 2) {
-                let max = {
+                let maxi = {
                     Code: i.Code,
                     Country: i.Country,
                     Suscriptions: i.Suscriptions,
                     Description: `5 Países por ENCIMA del valor de suscripción de ${i.Code}`,
                 }
-                js.push(max)
+                js.push(maxi)
             }
         }
         for (let i of inf) {
             if (i.Reference == 3) {
-                let min = {
+                let mini = {
                     Code: i.Code,
                     Country: i.Country,
                     Suscriptions: i.Suscriptions,
                     Descripcion: `5 Países por DEBAJO del valor de suscripción de ${i.Code}`,
                 }
-                js.push(min)
+                js.push(mini)
             }
         }
         for (let i of inf) {
