@@ -30,13 +30,59 @@ const consult = (path, code, year) => {
                                 key: "info"
                             }
                             consult.push(m);
-
+                            getTopMax(country, year, suscriptionCountry).then((Max) => {
+                                if (Max.length > 0) {
+                                    for (let i of Max) {
+                                        let M = {
+                                            Pais: i.Pais,
+                                            Codigo: i.Codigo,
+                                            Suscripciones: i.Suscripciones,
+                                            Descripcion: `Pais por Encima del valor de suscripcion de ${code}`,
+                                            key: "tp5Max"
+                                        }
+                                        consult.push(M);
+                                    }
+                                }
+                            });
+                            getTopMin(country, year, suscriptionCountry).then((Min) => {
+                                if (Max.length > 0) {
+                                    for (let i of Min) {
+                                        let Mi = {
+                                            Pais: i.Pais,
+                                            Codigo: i.Codigo,
+                                            Suscripciones: i.Suscripciones,
+                                            Descripcion: `Pais por Encima del valor de suscripcion de ${code}`,
+                                            key: "tp5Min"
+                                        }
+                                        consult.push(Mi);
+                                    }
+                                }
+                            });
+                            getTop(country, year).then((Top) => {
+                                for (let i of Top) {
+                                    let Top = {
+                                        Pais: i.Pais,
+                                        Suscripciones: i.Suscripciones,
+                                        Descripcion: `Top 5 de paises con sucripciones mas altas en el año ${year}`,
+                                        key: "tp5"
+                                    }
+                                    consult.push(Top)
+                                }
+                                return consult;
+                            });
                         }
-                    })
-                })
+                    });
+                });
+            } else {
+                console.log(`No existe ${year}`).red;
             }
+        } else {
+            console.log(`No existe ${code}`).red;
         }
+    } else {
+        console.log(`No existe ${path}`).red;
     }
+    return consult;
 }
 
 const convertir_guardar = () => {
@@ -115,7 +161,30 @@ const getHalf = (country, year) => {
     }
 }
 
-const getTop = (country, year, susCountry) => {
+const getTop = (country, year) => {
+    let top = []
+    let num = 0;
+    for (let data of country) {
+        data = Object.values(data)
+        sus = Number(data[year - 1956]);
+        if (sus > 0) {
+            let datas = {
+                Country: data[0],
+                Code: data[1],
+                Suscriptions: sus
+            }
+            top.push(datas)
+        }
+        num = suscription
+        top.sort(function(a, b) {
+            return b.Suscriptions - a.Suscriptions
+        });
+        top = top.slice(0, 5)
+    }
+    return top
+}
+
+const getTopMax = (country, year, susCountry) => {
     let top = []
     let num = 0;
     for (let data of country) {
@@ -137,9 +206,34 @@ const getTop = (country, year, susCountry) => {
     return top
 }
 
+const getTopMin = (country, year, susCountry) => {
+    let top = []
+    let num = 0;
+    for (let data of country) {
+        data = Object.values(data)
+        sus = Number(data[year - 1956]);
+        if (Number(sus) > 0) {
+            if (suscription < susCountry) {
+                let datas = {
+                    Country: data[0],
+                    Code: data[1],
+                    Suscriptions: sus
+                }
+                top.push(datas)
+            }
+            top.sort(function(a, b) {
+                return b.Suscriptions - a.Suscriptions
+            });
+            top = top.slice(0, 5)
+        }
+        return top
+    }
+}
+
 const publicar = (path, country, year) => {
     consult(path, country, year).then((inf) => {
         if (inf.length > 0) {
+            console.log('RESULTADOS');
             console.log('RESULTADOS');
         }
     });
@@ -178,6 +272,6 @@ const pagina = () => {
 module.exports = {
     convertir_guardar,
     publicar,
-    ej,
+    consult,
     pagina
 }
