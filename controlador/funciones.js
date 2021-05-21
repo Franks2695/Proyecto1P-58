@@ -13,7 +13,26 @@ const consult = (path, code, year) => {
         if (countr == true) {
             if (year <= 2019 && year >= 1964) {
                 getSuscription(country, code, year).then((suscriptionCountry) => {
+                    getHalf(country, year, suscriptionCountry).then((half) => {
+                        if (half > 0) {
+                            let valor;
+                            if (Number(half) > suscriptionCountry) {
+                                valor = `Es menor. ${code}`
+                            } else {
+                                valor = `Es mayor`
+                            }
+                            let m = {
+                                Codigo: code,
+                                Anio: year,
+                                Suscripcion: Number(suscriptionCountry),
+                                MediaGlobal: Number(half),
+                                Estado: valor,
+                                key: "info"
+                            }
+                            consult.push(m);
 
+                        }
+                    })
                 })
             }
         }
@@ -75,6 +94,47 @@ const getSuscription = (country, code, year) => {
             return suscription;
         }
     }
+}
+
+const getHalf = (country, year) => {
+    let sum = 0;
+    let prom = 0;
+    for (var i = 0; i < year.length; i++) {
+        let value = Object.values(year[i]);
+        let number = Number(value[year - 1956]);
+        if (number > 0) {
+            prom++;
+            sum = sum + number;
+        }
+    }
+    if (prom > 0) {
+        prom = (sum / prom).toFixed(3)
+        return prom;
+    } else {
+        return 0;
+    }
+}
+
+const getTop = (country, year, susCountry) => {
+    let top = []
+    let num = 0;
+    for (let data of country) {
+        data = Object.values(data)
+        sus = Number(data[year - 1956]);
+        if (sus > susCountry) {
+            let datas = {
+                Country: data[0],
+                Code: data[1],
+                Suscriptions: sus
+            }
+            top.push(datas)
+        }
+        top.sort(function(a, b) {
+            return a.Suscriptions - b.Suscriptions
+        });
+        top = top.slice(0, 5)
+    }
+    return top
 }
 
 const publicar = (path, country, year) => {
