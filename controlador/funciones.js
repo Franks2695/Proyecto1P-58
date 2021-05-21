@@ -14,30 +14,30 @@ const consult = async(path, code, year) => {
                 getSuscription(country, code, year).then((suscriptionCountry) => {
                     getHalf(country, year, suscriptionCountry).then((half) => {
                         if (half > 0) {
-                            let valor;
+                            let value;
                             if (Number(half) > suscriptionCountry) {
-                                valor = `Es menor. ${code}`
+                                value = `El valor de las suscripciones de ${code} es MENOR a la media mundial`
                             } else {
-                                valor = `Es mayor`
+                                value = `El valor de las suscripciones de ${code} es MAYOR a la media mundial`
                             }
                             let m = {
-                                Codigo: code,
-                                Anio: year,
-                                Suscripcion: Number(suscriptionCountry),
-                                MediaGlobal: Number(half),
-                                Estado: valor,
-                                key: "info"
+                                Global_Media: Number(half),
+                                Year: year,
+                                Code: code,
+                                Suscription: Number(suscriptionCountry),
+                                Value: value,
+                                Reference: 1
                             }
                             consulta.push(m);
                             getTopMax(country, year, suscriptionCountry).then((Max) => {
                                 if (Max.length > 0) {
                                     for (let i of Max) {
                                         let M = {
-                                            Pais: i.Pais,
-                                            Codigo: i.Codigo,
-                                            Suscripciones: i.Suscripciones,
-                                            Descripcion: `Pais por Encima del valor de suscripcion de ${code}`,
-                                            key: "tp5Max"
+                                            Country: i.Country,
+                                            Code: i.Code,
+                                            Suscriptions: i.Suscriptions,
+                                            Description: `Pais por Encima del valor de suscripcion de ${code}`,
+                                            Reference: 2
                                         }
                                         consulta.push(M);
                                     }
@@ -246,15 +246,23 @@ const datos = (path, country, year) => {
 const publicar = (path, country, year) => {
     datos(path, country, year).then((inf) => {
         if (inf.length > 0) {
-            console.log('RESULTADOS');
-            console.log(`${path}`);
+            console.log('                                                                     ESTADÍSTICAS'.bgBlack.inverse);
+            console.log();
             for (let i of inf) {
-                if (i.key == "info") {
-                    console.log(`Codigo pais: `.brightCyan + `${i.Codigo}`.brightYellow);
-                    console.log(`Año: `.brightCyan + `${i.Anio}`.brightYellow);
-                    console.log(`Suscripcion de ${i.Codigo} en ${i.Anio}: `.brightCyan + `${i.Suscripcion}`.brightYellow);
-                    console.log(`La media de suscripciones de todos los países es: `.brightYellow + `${i.MediaGlobal}`.brightYellow);
-                    console.log(`Estado: ${i.Estado}`.brightCyan);
+                if (i.Reference == 1) {
+                    console.log(`                                          Media de suscripciones de todos los países en el año ${i.Year}`.bgRed);
+                    console.log(`                                                                   ${i.Global_Media}`.bgBlue);
+                    console.log();
+                    console.log(`                                                                   Año`.bgRed);
+                    console.log(`                                                                   ${i.Year}`.bgBlue);
+                    console.log();
+                    console.log(`                                                             Codigo de País`.bgRed);
+                    console.log(`                                                                   ${i.Code}`.bgBlue);
+                    console.log();
+                    console.log(`                                                               Suscripciones`.bgRed);
+                    console.log(`                                                                   ${i.Suscription}`.bgBlue);
+                    console.log();
+                    console.log(`                                               ${i.Value}`.bgBlack.inverse);
                 }
             }
             console.log();
@@ -409,14 +417,14 @@ const guardar = async(path, code, year, out) => {
     leerDatos(out);
     consult(path, code, year).then((inf) => {
         for (let i of inf) {
-            if (i.key == "info") {
+            if (i.Reference == 1) {
                 let medi = {
-                    Codigo: code,
-                    Anio: year,
-                    Suscripcion: Number(i.Suscripcion),
-                    MediaGlobal: Number(i.MediaGlobal),
-                    Estado: i.Estado,
-                    key: "info"
+                    Global_Media: Number(i.Global_Media),
+                    Year: year,
+                    Code: code,
+                    Suscription: Number(i.Suscription),
+                    Value: i.Value,
+                    Reference: 1
                 }
                 js.push(medi);
             }
