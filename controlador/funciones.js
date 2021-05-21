@@ -33,39 +33,39 @@ const consult = async(path, code, year) => {
                                 if (Max.length > 0) {
                                     for (let i of Max) {
                                         let M = {
-                                            Country: i.Country,
                                             Code: i.Code,
+                                            Country: i.Country,
                                             Suscriptions: i.Suscriptions,
-                                            Description: `Pais por Encima del valor de suscripcion de ${code}`,
+                                            Description: `5 Países por ENCIMA del valor de suscripción de ${code}`,
                                             Reference: 2
                                         }
                                         consulta.push(M);
                                     }
                                 }
                             })
-                            getTopMin(country, year, suscriptionCountry).then((Min) => {
-                                if (Min.length > 0) {
-                                    for (let i of Min) {
-                                        let Mi = {
-                                            Pais: i.Pais,
-                                            Codigo: i.Codigo,
-                                            Suscripciones: i.Suscripciones,
-                                            Descripcion: `Pais por Encima del valor de suscripcion de ${code}`,
-                                            key: "tp5Min"
+                            getTopMin(country, year, suscriptionCountry).then((Mini) => {
+                                if (Mini.length > 0) {
+                                    for (let i of Mini) {
+                                        let s = {
+                                            Code: i.Code,
+                                            Country: i.Country,
+                                            Suscriptions: i.Suscriptions,
+                                            Description: `5 Países por DEBAJO del valor de suscripción de ${code}`,
+                                            Reference: 3
                                         }
-                                        consulta.push(Mi);
+                                        consulta.push(s);
                                     }
                                 }
                             })
                             getTop(country, year).then((Top) => {
                                 for (let i of Top) {
-                                    let Top = {
-                                        Pais: i.Pais,
-                                        Suscripciones: i.Suscripciones,
-                                        Descripcion: `Top 5 de paises con sucripciones mas altas en el año ${year}`,
-                                        key: "tp5"
+                                    let top = {
+                                        Country: i.Country,
+                                        Suscriptions: i.Suscriptions,
+                                        Descripcion: `Top 5 países con mayor suscripciones en el año ${year}`,
+                                        Reference: 4
                                     }
-                                    consulta.push(Top)
+                                    consulta.push(top)
                                 }
                                 return consulta;
                             });
@@ -73,10 +73,10 @@ const consult = async(path, code, year) => {
                     });
                 });
             } else {
-                console.log(`No existe ${year}`.red);
+                console.log(`No existe el año ${year}`.red);
             }
         } else {
-            console.log(`No existe ${code}`.red);
+            console.log(`No existe el código de país ${code}`.red);
         }
     } else {
         console.log(`No existe ${path}`.red);
@@ -237,25 +237,25 @@ const getTopMin = async(country, year, suscriptionCountry) => {
     return top
 }
 
-const datos = (path, country, year) => {
+const datos = async(path, country, year) => {
     let datos = consult(path, country, year)
-    var respuesta = datos
+    var respuesta = await datos
     return respuesta;
 }
 
-const publicar = (path, country, year) => {
+const publicar = async(path, country, year) => {
     datos(path, country, year).then((inf) => {
         if (inf.length > 0) {
-            console.log('                                                                     ESTADÍSTICAS'.bgBlack.inverse);
+            console.log('                                                           ESTADÍSTICAS GENERALES'.bgBlack.inverse);
             console.log();
             for (let i of inf) {
                 if (i.Reference == 1) {
                     console.log(`                                          Media de suscripciones de todos los países en el año ${i.Year}`.bgRed);
                     console.log(`                                                                   ${i.Global_Media}`.bgBlue);
                     console.log();
-                    console.log(`                                                                   Año`.bgRed);
-                    console.log(`                                                                   ${i.Year}`.bgBlue);
-                    console.log();
+                    /*  console.log(`                                                                   Año`.bgRed);
+                     console.log(`                                                                   ${i.Year}`.bgBlue);
+                     console.log(); */
                     console.log(`                                                             Codigo de País`.bgRed);
                     console.log(`                                                                   ${i.Code}`.bgBlue);
                     console.log();
@@ -266,6 +266,48 @@ const publicar = (path, country, year) => {
                 }
             }
             console.log();
+            console.log();
+            console.log(`                                          CINCO PAÍSES POR ENCIMA DEL VALOR DE SUSCRIPCIÓN DE ${country} `.bgBlack);
+            console.log();
+            for (let i of inf) {
+                if (i.Reference == 2) {
+                    console.log(`                                                   Código de País: `.bgRed + `${i.Code}`.bgBlue + ` País: `.bgRed + ` ${i.Country}`.bgBlue);
+                    console.log(`                                                               Suscripciones`.bgRed);
+                    console.log(`                                                                   ${i.Suscriptions}`.bgBlue);
+                    console.log();
+                    /*  console.log(`                                                               Suscripciones`.bgRed);
+                     console.log(`                                                                   ${i.Suscription}`.bgBlue);
+                     console.log(); */
+                }
+            }
+            console.log();
+            console.log(`                                          CINCO PAÍSES POR DEBAJO DEL VALOR DE SUSCRIPCIÓN DE ${country} `.bgBlack);
+            console.log();
+            for (let i of inf) {
+                if (i.Reference == 3) {
+                    console.log(`                                                   Código de País: `.bgRed + `${i.Code}`.bgBlue + ` País: `.bgRed + ` ${i.Country}`.bgBlue);
+                    console.log(`                                                               Suscripciones`.bgRed);
+                    console.log(`                                                                   ${i.Suscriptions}`.bgBlue);
+                    console.log();
+                    /*  console.log(`                                                               Suscripciones`.bgRed);
+                     console.log(`                                                                   ${i.Suscription}`.bgBlue);
+                     console.log(); */
+                }
+            }
+            console.log();
+            console.log(`                                           TOP CINCO PAÍSES CON MAYOR SUSCRIPCIÓNES EN EL AÑO ${year} `.bgBlack);
+            console.log();
+            for (let i of inf) {
+                if (i.Reference == 4) {
+                    console.log(`                                                                 País: `.bgRed + ` ${i.Country}`.bgBlue);
+                    console.log(`                                                               Suscripciones`.bgRed);
+                    console.log(`                                                                   ${i.Suscriptions}`.bgBlue);
+                    console.log();
+                    /*  console.log(`                                                               Suscripciones`.bgRed);
+                     console.log(`                                                                   ${i.Suscription}`.bgBlue);
+                     console.log(); */
+                }
+            }
             const http = require('http');
             const hostname = '127.0.0.2';
             const port = 3000;
@@ -278,67 +320,65 @@ const publicar = (path, country, year) => {
                 <head>
                 <meta charset="UTF-8">
                 <title>Estadisticas</title>
-                
                 </head>
-                <body style="background-color: white; color: black;">
-                <h1 style="text-align: left;">PROYECTO PRIMER PARCIAL</h1>
-                <h1 style="text-align: left;">PLATAFORMAS WEB</h1>
-                <h1 style="text-align: left;">Estadisticas de suscripciones a telefonía celular móvil</h1>
+                <body style="background-color: black; color: white;">
+                <h1 style="text-align: center;">PLATAFORMAS WEB</h1>
+                <h1 style="text-align: center;">PERIODO 58</h1>
+                <h1 style="text-align: center;">PROYECTO PRIMER PARCIAL</h1>
+                <h1 style="text-align: center;">Estadisticas de suscripciones a telefonía celular móvil de un determinado país en un determinado año específico</h1>
                 <div id="datosPersona" style="text-align:center;">
-                <table class="tg"></table>
+                <table border="1"; class="tg"; style="margin: 0 auto; style="text-align: center;"></table>
                 </div>
-                
                 <script>
-                function cargarDatos(){
-                    var Datos = JSON.parse(${JSON.stringify(f)});
+                function showData(){
+                    var Estadisticas = JSON.parse(${JSON.stringify(f)});
                     $(".tg").append(
                         '<thead>'+
                             '<tr>'+
-                                '<th>Datos</th>'+
+                                '<th>ESTADISTICAS</th>'+
                             '</tr>'+
                         '</thead>'
                     );
                     $(".tg").append('<tbody>');
-                    for(let i of Datos){
-                        if (i.key == "info") {
+                    for(let i of Estadisticas){
+                        if (i.Reference == 1) {
                             $(".tg").append(
-                                '<tr>' +
-                                    '<td>Codigo del país:</td>'+
-                                    '<td>' + i.Codigo + '</td>'+
-                                '</tr>'+
                                 '<tr>'+
-                                    '<td>Año:</td>'+
-                                    '<td>' + i.Anio +
+                                    '<td style="text-align: center;">Media de suscripciones de todos los países en el año '+i.Year+'</td>'+
+                                    '<td>' + i.Global_Media+
                                 '</tr>'+
                                 '<tr>' +
-                                    '<td>'+'Suscripcion de '+i.Codigo+' en el ' + i.Anio+'</td>'+
-                                    '<td>' + i.Suscripcion + '</td>'+
+                                    '<td style="text-align: center;">Codigo del país:</td>'+
+                                    '<td>' + i.Code + '</td>'+
                                 '</tr>'+
                                 '<tr>'+
-                                    '<td>Media de suscripciones de todos los países: </td>'+
-                                    '<td>' + i.MediaGlobal+
+                                    '<td style="text-align: center;">Año:</td>'+
+                                    '<td>' + i.Year +
                                 '</tr>'+
-                                '<td>Estado: </td>'+
-                                '<td>' + i.Estado+
+                                '<tr>' +
+                                    '<td style="text-align: center;">'+'Suscripcion de '+i.Code+' en el ' + i.Year+'</td>'+
+                                    '<td>' + i.Suscription + '</td>'+
+                                '</tr>'+
+                                
+                                '<td style="text-align: center;">' + i.Value+
                             '</tr>'
                             );
                         }     
                     }
                     $(".tg").append(
                         '<tr>'+
-                            '<td>'+'Cinco países por encima'+Datos[0].Cod+'</td>'+
+                            '<td>'+'Cinco países por ENCIMA'+Datos[0].Cod+'</td>'+
                         '</tr>'
                     );
-                                for(let i of Datos){
-                                    if (i.key =="tp5Max") {
+                                for(let i of Estadisticas){
+                                    if (i.Reference == 2) {
                                         $(".tg").append(
                                             '<tr>' +
                                                 '<td>Pais:</td>'+
-                                                '<td>' + i.Pais + '</td>'+
+                                                '<td>' + i.Country + i.Suscriptions + '</td>'+
                                             '</tr>'+
                                             '<tr>'+
-                                                '<td>Suscripciones:</td>'+
-                                                '<td>' + i.Suscripciones +
+                                                '<td>Suscripciones:</td>' +
                                             '</tr>'
                                         );
                                     }
@@ -348,48 +388,46 @@ const publicar = (path, country, year) => {
                                         '<td>'+'Cinco países por DEBAJO'+Datos[0].Cod+'</td>'+
                                     '</tr>'
                                 );
-                                for(let i of Datos){
-                                    if (i.key =="tp5Min") {
-                                        if(i.Suscripciones>0){
+                                for(let i of Estadisticas){
+                                    if (i.Reference == 3) {
+                                        if(i.Suscriptions>0){
                                             console.log(i)
                                         }
                                         $(".tg").append(
                                             '<tr>' +
                                                 '<td">Pais:</td>'+
-                                                '<td">' + i.Pais + '</td>'+
+                                                '<td">' + i.Country + '</td>'+
                                             '</tr>'+
                                             '<tr>'+
                                                 '<td">Suscripciones:</td>'+
-                                                '<td">' + i.Suscripciones +
+                                                '<td">' + i.Suscriptions +
                                             '</tr>'
                                         );
                                     }
                                 }
                                 $(".tg").append(
                                     '<tr>'+
-                                        '<td>'+'TOP 5 de países'+Datos[0].Anio+'</td>'+
+                                        '<td>'+'Top 5 países'+Datos[0].Anio+'</td>'+
                                     '</tr>'
                                 );
-                                for(let i of Datos){
-                                    if (i.key =="tp5") {
+                                for(let i of Estadisticas){
+                                    if (i.Reference == 4) {
                                         $(".tg").append(
                                             '<tr>' +
                                                 '<td>Pais:</td>'+
-                                                '<td>' + i.Pais + '</td>'+
+                                                '<td>' + i.Country + '</td>'+
                                             '</tr>'+
                                             '<tr>'+
                                                 '<td>Suscripciones:</td>'+
-                                                '<td>' + i.Suscripciones +
+                                                '<td>' + i.Suscriptions +
                                             '</tr>'
                                         );
                                     } 
                                 }
                     $(".tg").append('</tbody>');
                 }                    
-                cargarDatos()
+                showData()
                 </script>
-                
-                </button>
                 </body>
                 </html>
                 `);
@@ -430,35 +468,35 @@ const guardar = async(path, code, year, out) => {
             }
         }
         for (let i of inf) {
-            if (i.key == "tp5Max") {
-                let tp5M = {
-                    Pais: i.Pais,
-                    Codigo: i.Codigo,
-                    Suscripciones: i.Suscripciones,
-                    Descripcion: `Pais por Encima del valor de suscripcion de ${i.Codigo}`,
+            if (i.Reference == 2) {
+                let max = {
+                    Code: i.Code,
+                    Country: i.Country,
+                    Suscriptions: i.Suscriptions,
+                    Description: `5 Países por ENCIMA del valor de suscripción de ${i.Code}`,
                 }
-                js.push(tp5M)
+                js.push(max)
             }
         }
         for (let i of inf) {
-            if (i.key == "tp5Min") {
-                let tp5min = {
-                    Pais: i.Pais,
-                    Codigo: i.Codigo,
-                    Suscripciones: i.Suscripciones,
-                    Descripcion: `País por Debajo del valor de suscripciones de ${i.Codigo}`,
+            if (i.Reference == 3) {
+                let min = {
+                    Code: i.Code,
+                    Country: i.Country,
+                    Suscriptions: i.Suscriptions,
+                    Descripcion: `5 Países por DEBAJO del valor de suscripción de ${i.Code}`,
                 }
-                js.push(tp5min)
+                js.push(min)
             }
         }
         for (let i of inf) {
-            if (i.key == "tp5") {
-                let tp5 = {
-                    Pais: i.Pais,
-                    Suscripciones: i.Suscripciones,
-                    Descripcion: `TOP 5 de países con suscripciones mas alta en el año ${year}`,
+            if (i.Reference == 4) {
+                let top = {
+                    Country: i.Country,
+                    Suscriptions: i.Suscriptions,
+                    Description: `Top 5 países con mayor suscripciones en el año ${year}`,
                 }
-                js.push(tp5)
+                js.push(top)
             }
         }
         saveData(out);
