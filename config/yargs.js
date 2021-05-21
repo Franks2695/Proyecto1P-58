@@ -11,6 +11,7 @@ const country = {
 }
 
 const year = {
+    default: true,
     default: 2018,
     alias: 'y',
     desc: 'Permite especificar el año para el cual se requiere las estadísticas'

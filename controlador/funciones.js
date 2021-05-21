@@ -4,12 +4,11 @@ var colors = require('colors')
 
 let js = [];
 
-const consult = (path, code, year) => {
-    let consult = [];
-    let country = getData(path);
-    num = 0;
+const consult = async(path, code, year) => {
+    let consulta = [];
+    let country = await getData(path);
     if (country != "Fatal Error") {
-        let countr = getCountry(country, code);
+        let countr = await getCountry(country, code);
         if (countr == true) {
             if (year <= 2019 && year >= 1964) {
                 getSuscription(country, code, year).then((suscriptionCountry) => {
@@ -29,7 +28,7 @@ const consult = (path, code, year) => {
                                 Estado: valor,
                                 key: "info"
                             }
-                            consult.push(m);
+                            consulta.push(m);
                             getTopMax(country, year, suscriptionCountry).then((Max) => {
                                 if (Max.length > 0) {
                                     for (let i of Max) {
@@ -40,12 +39,12 @@ const consult = (path, code, year) => {
                                             Descripcion: `Pais por Encima del valor de suscripcion de ${code}`,
                                             key: "tp5Max"
                                         }
-                                        consult.push(M);
+                                        consulta.push(M);
                                     }
                                 }
-                            });
+                            })
                             getTopMin(country, year, suscriptionCountry).then((Min) => {
-                                if (Max.length > 0) {
+                                if (Min.length > 0) {
                                     for (let i of Min) {
                                         let Mi = {
                                             Pais: i.Pais,
@@ -54,10 +53,10 @@ const consult = (path, code, year) => {
                                             Descripcion: `Pais por Encima del valor de suscripcion de ${code}`,
                                             key: "tp5Min"
                                         }
-                                        consult.push(Mi);
+                                        consulta.push(Mi);
                                     }
                                 }
-                            });
+                            })
                             getTop(country, year).then((Top) => {
                                 for (let i of Top) {
                                     let Top = {
@@ -66,23 +65,23 @@ const consult = (path, code, year) => {
                                         Descripcion: `Top 5 de paises con sucripciones mas altas en el año ${year}`,
                                         key: "tp5"
                                     }
-                                    consult.push(Top)
+                                    consulta.push(Top)
                                 }
-                                return consult;
+                                return consulta;
                             });
                         }
                     });
                 });
             } else {
-                console.log(`No existe ${year}`).red;
+                console.log(`No existe ${year}`.red);
             }
         } else {
-            console.log(`No existe ${code}`).red;
+            console.log(`No existe ${code}`.red);
         }
     } else {
-        console.log(`No existe ${path}`).red;
+        console.log(`No existe ${path}`.red);
     }
-    return consult;
+    return await consulta;
 }
 
 const convertir_guardar = () => {
@@ -96,57 +95,65 @@ const convertir_guardar = () => {
         });
 }
 
-const leerDatos = () => {
+const saveData = async(out) => {
+    let data = JSON.stringify(js);
+    fs.writeFileSync(`./data/${out}.json`, data, (err, data) => {
+        if (err) throw new Error('No se puede guardar la data', err);
+    });
+}
+
+const leerDatos = async(out) => {
     try {
-        js = require('../data/resultados.json');
+        js = require(`../data/${out}.json`);
     } catch (error) {
-        js = [];
+        js = []
     }
 }
 
-const getData = (file) => {
+const getData = async(file) => {
     try {
-        infs = csv().fromFile(file);
+        const infs = await csv().fromFile(file);
         let data = [];
-        let csv = JSON.parse(fs.readFileSync('./data/resultados.json', 'utf8'));
+        var code = JSON.parse(fs.readFileSync('./data/country.json', 'utf8'));
         for (let inf of infs) {
             inf = Object.values(inf);
-            for (let codeCountry of csv) {
-                if (inf[1] == codeCountry.CountryCode) {
+            for (let c of code) {
+                if (inf[1] == c.countryCode) {
                     data.push(inf)
                 }
             }
         }
         return data;
-    } catch (error) {
-        error = "Fatal Error".bgRed
+    } catch (e) {
+        e = "Fatal Error"
+        return e
     }
 }
 
-const getCountry = (year, code) => {
-    for (var i = 0; i < year.length; i++) {
-        let value = Object.values(year[i]);
+const getCountry = async(country, code) => {
+    for (var i = 0; i < country.length; i++) {
+        let value = Object.values(country[i]);
         if (value[1] == code) {
             return true;
         }
     }
 }
 
-const getSuscription = (country, code, year) => {
-    for (var i = 0; i < year.length; i++) {
+const getSuscription = async(country, code, year) => {
+    for (var i = 0; i < country.length; i++) {
         let value = Object.values(country[i]);
         if (value[1] == code) {
             suscription = value[year - 1956];
-            return suscription;
+            return suscription
         }
     }
 }
 
-const getHalf = (country, year) => {
+const getHalf = async(country, year) => {
     let sum = 0;
     let prom = 0;
-    for (var i = 0; i < year.length; i++) {
-        let value = Object.values(year[i]);
+    for (var i = 0; i < country.length; i++) {
+        let value = Object.values(country[i]);
         let number = Number(value[year - 1956]);
         if (number > 0) {
             prom++;
@@ -155,19 +162,19 @@ const getHalf = (country, year) => {
     }
     if (prom > 0) {
         prom = (sum / prom).toFixed(3)
-        return prom;
+        return prom
     } else {
-        return 0;
+        return 0
     }
 }
 
-const getTop = (country, year) => {
+const getTop = async(country, year) => {
     let top = []
     let num = 0;
     for (let data of country) {
         data = Object.values(data)
         sus = Number(data[year - 1956]);
-        if (sus > 0) {
+        if (sus > num) {
             let datas = {
                 Country: data[0],
                 Code: data[1],
@@ -184,17 +191,17 @@ const getTop = (country, year) => {
     return top
 }
 
-const getTopMax = (country, year, susCountry) => {
+const getTopMax = async(country, year, suscriptionCountry) => {
     let top = []
     let num = 0;
     for (let data of country) {
         data = Object.values(data)
         sus = Number(data[year - 1956]);
-        if (sus > susCountry) {
+        if (sus > suscriptionCountry) {
             let datas = {
                 Country: data[0],
                 Code: data[1],
-                Suscriptions: sus
+                Suscriptions: sus,
             }
             top.push(datas)
         }
@@ -206,18 +213,18 @@ const getTopMax = (country, year, susCountry) => {
     return top
 }
 
-const getTopMin = (country, year, susCountry) => {
+const getTopMin = async(country, year, suscriptionCountry) => {
     let top = []
     let num = 0;
     for (let data of country) {
         data = Object.values(data)
         sus = Number(data[year - 1956]);
         if (Number(sus) > 0) {
-            if (suscription < susCountry) {
+            if (suscription < suscriptionCountry) {
                 let datas = {
                     Country: data[0],
                     Code: data[1],
-                    Suscriptions: sus
+                    Suscriptions: sus,
                 }
                 top.push(datas)
             }
@@ -226,52 +233,231 @@ const getTopMin = (country, year, susCountry) => {
             });
             top = top.slice(0, 5)
         }
-        return top
     }
+    return top
+}
+
+const datos = (path, country, year) => {
+    let datos = consult(path, country, year)
+    var respuesta = datos
+    return respuesta;
 }
 
 const publicar = (path, country, year) => {
-    consult(path, country, year).then((inf) => {
+    datos(path, country, year).then((inf) => {
         if (inf.length > 0) {
             console.log('RESULTADOS');
-            console.log('RESULTADOS');
+            console.log(`${path}`);
+            for (let i of inf) {
+                if (i.key == "info") {
+                    console.log(`Codigo pais: `.brightCyan + `${i.Codigo}`.brightYellow);
+                    console.log(`Año: `.brightCyan + `${i.Anio}`.brightYellow);
+                    console.log(`Suscripcion de ${i.Codigo} en ${i.Anio}: `.brightCyan + `${i.Suscripcion}`.brightYellow);
+                    console.log(`La media de suscripciones de todos los países es: `.brightYellow + `${i.MediaGlobal}`.brightYellow);
+                    console.log(`Estado: ${i.Estado}`.brightCyan);
+                }
+            }
+            console.log();
+            const http = require('http');
+            const hostname = '127.0.0.2';
+            const port = 3000;
+            let f = JSON.stringify(inf)
+            const server = http.createServer((req, res) => {
+                res.statusCode = 200;
+
+                res.end(`<html>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+                <head>
+                <meta charset="UTF-8">
+                <title>Estadisticas</title>
+                
+                </head>
+                <body style="background-color: white; color: black;">
+                <h1 style="text-align: left;">PROYECTO PRIMER PARCIAL</h1>
+                <h1 style="text-align: left;">PLATAFORMAS WEB</h1>
+                <h1 style="text-align: left;">Estadisticas de suscripciones a telefonía celular móvil</h1>
+                <div id="datosPersona" style="text-align:center;">
+                <table class="tg"></table>
+                </div>
+                
+                <script>
+                function cargarDatos(){
+                    var Datos = JSON.parse(${JSON.stringify(f)});
+                    $(".tg").append(
+                        '<thead>'+
+                            '<tr>'+
+                                '<th>Datos</th>'+
+                            '</tr>'+
+                        '</thead>'
+                    );
+                    $(".tg").append('<tbody>');
+                    for(let i of Datos){
+                        if (i.key == "info") {
+                            $(".tg").append(
+                                '<tr>' +
+                                    '<td>Codigo del país:</td>'+
+                                    '<td>' + i.Codigo + '</td>'+
+                                '</tr>'+
+                                '<tr>'+
+                                    '<td>Año:</td>'+
+                                    '<td>' + i.Anio +
+                                '</tr>'+
+                                '<tr>' +
+                                    '<td>'+'Suscripcion de '+i.Codigo+' en el ' + i.Anio+'</td>'+
+                                    '<td>' + i.Suscripcion + '</td>'+
+                                '</tr>'+
+                                '<tr>'+
+                                    '<td>Media de suscripciones de todos los países: </td>'+
+                                    '<td>' + i.MediaGlobal+
+                                '</tr>'+
+                                '<td>Estado: </td>'+
+                                '<td>' + i.Estado+
+                            '</tr>'
+                            );
+                        }     
+                    }
+                    $(".tg").append(
+                        '<tr>'+
+                            '<td>'+'Cinco países por encima'+Datos[0].Cod+'</td>'+
+                        '</tr>'
+                    );
+                                for(let i of Datos){
+                                    if (i.key =="tp5Max") {
+                                        $(".tg").append(
+                                            '<tr>' +
+                                                '<td>Pais:</td>'+
+                                                '<td>' + i.Pais + '</td>'+
+                                            '</tr>'+
+                                            '<tr>'+
+                                                '<td>Suscripciones:</td>'+
+                                                '<td>' + i.Suscripciones +
+                                            '</tr>'
+                                        );
+                                    }
+                                }
+                                $(".tg").append(
+                                    '<tr>'+
+                                        '<td>'+'Cinco países por DEBAJO'+Datos[0].Cod+'</td>'+
+                                    '</tr>'
+                                );
+                                for(let i of Datos){
+                                    if (i.key =="tp5Min") {
+                                        if(i.Suscripciones>0){
+                                            console.log(i)
+                                        }
+                                        $(".tg").append(
+                                            '<tr>' +
+                                                '<td">Pais:</td>'+
+                                                '<td">' + i.Pais + '</td>'+
+                                            '</tr>'+
+                                            '<tr>'+
+                                                '<td">Suscripciones:</td>'+
+                                                '<td">' + i.Suscripciones +
+                                            '</tr>'
+                                        );
+                                    }
+                                }
+                                $(".tg").append(
+                                    '<tr>'+
+                                        '<td>'+'TOP 5 de países'+Datos[0].Anio+'</td>'+
+                                    '</tr>'
+                                );
+                                for(let i of Datos){
+                                    if (i.key =="tp5") {
+                                        $(".tg").append(
+                                            '<tr>' +
+                                                '<td>Pais:</td>'+
+                                                '<td>' + i.Pais + '</td>'+
+                                            '</tr>'+
+                                            '<tr>'+
+                                                '<td>Suscripciones:</td>'+
+                                                '<td>' + i.Suscripciones +
+                                            '</tr>'
+                                        );
+                                    } 
+                                }
+                    $(".tg").append('</tbody>');
+                }                    
+                cargarDatos()
+                </script>
+                
+                </button>
+                </body>
+                </html>
+                `);
+            });
+
+            server.listen(port, hostname, () => {
+                console.log(`Server running at http://${hostname}:${port}/`);
+            });
         }
     });
 
-    let est = {
+    /* let est = {
         country: true,
         year: true
     }
     let n = "Country Name"
     let i = js.filter(n => n.Data_Source === "ABW")
-    console.log(i);
-
-    /*  if (index1, index2 >= 0) {
-         
-     } */
+        /*  if (index1, index2 >= 0) {
+             
+         } */
 
 }
 
-const pagina = () => {
-    const http = require('http');
-
-    const hostname = '127.0.0.1';
-    const port = 3000;
-
-    const server = http.createServer((req, res) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Hello Worlddddd');
-    });
-
-    server.listen(port, hostname, () => {
-        console.log(`Server running at http://${hostname}:${port}/`);
+const guardar = async(path, code, year, out) => {
+    leerDatos(out);
+    consult(path, code, year).then((inf) => {
+        for (let i of inf) {
+            if (i.key == "info") {
+                let medi = {
+                    Codigo: code,
+                    Anio: year,
+                    Suscripcion: Number(i.Suscripcion),
+                    MediaGlobal: Number(i.MediaGlobal),
+                    Estado: i.Estado,
+                    key: "info"
+                }
+                js.push(medi);
+            }
+        }
+        for (let i of inf) {
+            if (i.key == "tp5Max") {
+                let tp5M = {
+                    Pais: i.Pais,
+                    Codigo: i.Codigo,
+                    Suscripciones: i.Suscripciones,
+                    Descripcion: `Pais por Encima del valor de suscripcion de ${i.Codigo}`,
+                }
+                js.push(tp5M)
+            }
+        }
+        for (let i of inf) {
+            if (i.key == "tp5Min") {
+                let tp5min = {
+                    Pais: i.Pais,
+                    Codigo: i.Codigo,
+                    Suscripciones: i.Suscripciones,
+                    Descripcion: `País por Debajo del valor de suscripciones de ${i.Codigo}`,
+                }
+                js.push(tp5min)
+            }
+        }
+        for (let i of inf) {
+            if (i.key == "tp5") {
+                let tp5 = {
+                    Pais: i.Pais,
+                    Suscripciones: i.Suscripciones,
+                    Descripcion: `TOP 5 de países con suscripciones mas alta en el año ${year}`,
+                }
+                js.push(tp5)
+            }
+        }
+        saveData(out);
     });
 }
 
 module.exports = {
-    convertir_guardar,
     publicar,
-    consult,
-    pagina
+    guardar
 }
